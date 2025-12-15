@@ -354,7 +354,7 @@ void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, sdfat_timespec_t *ts,
 
 TIMESTAMP_T *tm_now(struct inode *inode, TIMESTAMP_T *tp)
 {
-	sdfat_timespec_t ts = current_time(inode);
+	sdfat_timespec_t ts = sdfat_current_time(inode);
 	DATE_TIME_T dt;
 
 	sdfat_time_unix2fat(SDFAT_SB(inode->i_sb), &ts, &dt);

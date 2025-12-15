@@ -351,6 +351,7 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
 	}
 
 	while (msg_data_left(msg)) {
+		struct iov_iter saved_iter;
 		if (sk->sk_err) {
 			ret = sk->sk_err;
 			goto send_end;
@@ -385,6 +386,7 @@ alloc_encrypted:
 		}
 
 		if (full_record || eor) {
+			saved_iter = msg->msg_iter;
 			ret = zerocopy_from_iter(sk, &msg->msg_iter,
 						 try_to_copy);
 			if (ret)
@@ -399,8 +401,7 @@ alloc_encrypted:
 
 			copied -= try_to_copy;
 fallback_to_reg_send:
-			iov_iter_revert(&msg->msg_iter,
-					ctx->sg_plaintext_size - orig_size);
+			msg->msg_iter = saved_iter;
 			trim_sg(sk, ctx->sg_plaintext_data,
 				&ctx->sg_plaintext_num_elem,
 				&ctx->sg_plaintext_size,
