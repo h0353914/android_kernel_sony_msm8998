@@ -586,6 +586,15 @@ config POWERKEY_FORCECRASH
 	  Say Y here if you want force crash functionality through power
 	  key. Triggers panic if power key is hold for more than 10secs.
 
+config TOF_SENSOR
+	tristate "ToF Sensor"
+	depends on I2C
+	---help---
+	  Say Y here if you want to use ToF sensor.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called tof_sensor.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
