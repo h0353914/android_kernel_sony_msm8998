@@ -32,20 +32,8 @@
 
 &firmware {
 	android {
-		fstab {
-			vendor {
-				fsmgr_flags = "wait,verify=/dev/block/platform/soc/1da4000.ufshc/by-name/fsmetadata";
-			};
-
-			system {
-					compatible = "android,system";
-					dev = "/dev/block/platform/soc/1da4000.ufshc/by-name/system";
-					type = "ext4";
-					mnt_flags = "ro,barrier=1,discard";
-					fsmgr_flags = "wait,verify=/dev/block/platform/soc/1da4000.ufshc/by-name/fsmetadata";
-					status = "ok";
-			};
-		};
+		boot_devices = "soc/1da4000.ufshc";
+		/delete-node/ fstab;
 	};
 };
 
