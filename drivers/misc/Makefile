@@ -72,3 +72,4 @@ obj-$(CONFIG_NFC_CARILLON)      += carillon/
 obj-$(CONFIG_TOF_SENSOR) += tof_sensor.o
 obj-$(CONFIG_SENSORS_TCS3490) += tcs3490.o
 obj-$(CONFIG_POWERKEY_FORCECRASH) += powerkey_forcecrash.o
+obj-$(CONFIG_MMTUNER_MN8855x) += mm_tuner/
