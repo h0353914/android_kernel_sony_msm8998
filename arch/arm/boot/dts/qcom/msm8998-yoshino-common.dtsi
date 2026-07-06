@@ -604,7 +604,13 @@
 
 		sim1_det {
 			label = "sim-detection";
-			gpios = <&tlmm 112 0x0>;
+			gpios = <&tlmm 112 GPIO_ACTIVE_LOW>;
+			debounce-interval = <10>;
+		};
+
+		sim2_det {
+			label = "sim2-detection";
+			gpios = <&tlmm 63 GPIO_ACTIVE_LOW>;
 			debounce-interval = <10>;
 		};
 	};
@@ -3517,6 +3523,7 @@
 
 &sdhc_2 {
 	cd-gpios = <&tlmm 95 GPIO_ACTIVE_HIGH>;
+	uim2-gpios = <&tlmm 39 GPIO_ACTIVE_HIGH>;
 };
 
 &spmi_bus {
