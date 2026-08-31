@@ -281,8 +281,11 @@ static int cxd224x_dev_open(struct inode *inode, struct file *filp)
 		call_enable = 1;
 	}
 	cxd224x_dev->users++;
-	if (call_enable)
+	if (call_enable) {
 		cxd224x_enable_irq(cxd224x_dev);
+		cxd224x_enable_pon(cxd224x_dev);
+		msleep(5);
+	}
 	mutex_unlock(&cxd224x_dev->lock);
 
 	dev_info(&cxd224x_dev->client->dev,
