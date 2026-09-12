@@ -855,6 +855,10 @@ out:
  * @oldsid : current security identifier
  * @newsid : destinated security identifier
  */
+#ifdef CONFIG_KSU
+extern bool is_ksu_transition(u32 old_sid, u32 new_sid);
+#endif
+
 int security_bounded_transition(u32 old_sid, u32 new_sid)
 {
 	struct context *old_context, *new_context;
@@ -864,6 +868,14 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
 
 	if (!ss_initialized)
 		return 0;
+
+#ifdef CONFIG_KSU
+
+	if (is_ksu_transition(old_sid, new_sid)) {
+		return 0;
+	}
+
+#endif
 
 	read_lock(&policy_rwlock);
 
