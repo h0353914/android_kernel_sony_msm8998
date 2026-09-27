@@ -111,7 +111,7 @@ int __init security_module_enable(const char *module)
 	do {							\
 		struct security_hook_list *P;			\
 								\
-		list_for_each_entry(P, &security_hook_heads.FUNC, list)	\
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list)	\
 			P->hook.FUNC(__VA_ARGS__);		\
 	} while (0)
 
@@ -120,7 +120,7 @@ int __init security_module_enable(const char *module)
 	do {							\
 		struct security_hook_list *P;			\
 								\
-		list_for_each_entry(P, &security_hook_heads.FUNC, list) { \
+		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
 			RC = P->hook.FUNC(__VA_ARGS__);		\
 			if (RC != 0)				\
 				break;				\
@@ -227,7 +227,7 @@ int security_vm_enough_memory_mm(struct mm_struct *mm, long pages)
 	 * agree that it should be set it will. If any module
 	 * thinks it should not be set it won't.
 	 */
-	list_for_each_entry(hp, &security_hook_heads.vm_enough_memory, list) {
+	hlist_for_each_entry(hp, &security_hook_heads.vm_enough_memory, list) {
 		rc = hp->hook.vm_enough_memory(mm, pages);
 		if (rc <= 0) {
 			cap_sys_admin = 0;
@@ -1009,7 +1009,7 @@ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 	int rc = -ENOSYS;
 	struct security_hook_list *hp;
 
-	list_for_each_entry(hp, &security_hook_heads.task_prctl, list) {
+	hlist_for_each_entry(hp, &security_hook_heads.task_prctl, list) {
 		thisrc = hp->hook.task_prctl(option, arg2, arg3, arg4, arg5);
 		if (thisrc != -ENOSYS) {
 			rc = thisrc;
@@ -1486,7 +1486,7 @@ int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
 	 * For speed optimization, we explicitly break the loop rather than
 	 * using the macro
 	 */
-	list_for_each_entry(hp, &security_hook_heads.xfrm_state_pol_flow_match,
+	hlist_for_each_entry(hp, &security_hook_heads.xfrm_state_pol_flow_match,
 				list) {
 		rc = hp->hook.xfrm_state_pol_flow_match(x, xp, flic);
 		break;
@@ -1595,366 +1595,366 @@ void security_bpf_prog_free(struct bpf_prog_aux *aux)
 
 struct security_hook_heads security_hook_heads = {
 	.binder_set_context_mgr =
-		LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
+		HLIST_HEAD_INIT,
 	.binder_transaction =
-		LIST_HEAD_INIT(security_hook_heads.binder_transaction),
+		HLIST_HEAD_INIT,
 	.binder_transfer_binder =
-		LIST_HEAD_INIT(security_hook_heads.binder_transfer_binder),
+		HLIST_HEAD_INIT,
 	.binder_transfer_file =
-		LIST_HEAD_INIT(security_hook_heads.binder_transfer_file),
+		HLIST_HEAD_INIT,
 
 	.ptrace_access_check =
-		LIST_HEAD_INIT(security_hook_heads.ptrace_access_check),
+		HLIST_HEAD_INIT,
 	.ptrace_traceme =
-		LIST_HEAD_INIT(security_hook_heads.ptrace_traceme),
-	.capget =	LIST_HEAD_INIT(security_hook_heads.capget),
-	.capset =	LIST_HEAD_INIT(security_hook_heads.capset),
-	.capable =	LIST_HEAD_INIT(security_hook_heads.capable),
-	.quotactl =	LIST_HEAD_INIT(security_hook_heads.quotactl),
-	.quota_on =	LIST_HEAD_INIT(security_hook_heads.quota_on),
-	.syslog =	LIST_HEAD_INIT(security_hook_heads.syslog),
-	.settime =	LIST_HEAD_INIT(security_hook_heads.settime),
+		HLIST_HEAD_INIT,
+	.capget =	HLIST_HEAD_INIT,
+	.capset =	HLIST_HEAD_INIT,
+	.capable =	HLIST_HEAD_INIT,
+	.quotactl =	HLIST_HEAD_INIT,
+	.quota_on =	HLIST_HEAD_INIT,
+	.syslog =	HLIST_HEAD_INIT,
+	.settime =	HLIST_HEAD_INIT,
 	.vm_enough_memory =
-		LIST_HEAD_INIT(security_hook_heads.vm_enough_memory),
+		HLIST_HEAD_INIT,
 	.bprm_set_creds =
-		LIST_HEAD_INIT(security_hook_heads.bprm_set_creds),
+		HLIST_HEAD_INIT,
 	.bprm_check_security =
-		LIST_HEAD_INIT(security_hook_heads.bprm_check_security),
+		HLIST_HEAD_INIT,
 	.bprm_secureexec =
-		LIST_HEAD_INIT(security_hook_heads.bprm_secureexec),
+		HLIST_HEAD_INIT,
 	.bprm_committing_creds =
-		LIST_HEAD_INIT(security_hook_heads.bprm_committing_creds),
+		HLIST_HEAD_INIT,
 	.bprm_committed_creds =
-		LIST_HEAD_INIT(security_hook_heads.bprm_committed_creds),
+		HLIST_HEAD_INIT,
 	.sb_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.sb_alloc_security),
+		HLIST_HEAD_INIT,
 	.sb_free_security =
-		LIST_HEAD_INIT(security_hook_heads.sb_free_security),
-	.sb_copy_data =	LIST_HEAD_INIT(security_hook_heads.sb_copy_data),
-	.sb_remount =	LIST_HEAD_INIT(security_hook_heads.sb_remount),
+		HLIST_HEAD_INIT,
+	.sb_copy_data =	HLIST_HEAD_INIT,
+	.sb_remount =	HLIST_HEAD_INIT,
 	.sb_kern_mount =
-		LIST_HEAD_INIT(security_hook_heads.sb_kern_mount),
+		HLIST_HEAD_INIT,
 	.sb_show_options =
-		LIST_HEAD_INIT(security_hook_heads.sb_show_options),
-	.sb_statfs =	LIST_HEAD_INIT(security_hook_heads.sb_statfs),
-	.sb_mount =	LIST_HEAD_INIT(security_hook_heads.sb_mount),
-	.sb_umount =	LIST_HEAD_INIT(security_hook_heads.sb_umount),
-	.sb_pivotroot =	LIST_HEAD_INIT(security_hook_heads.sb_pivotroot),
+		HLIST_HEAD_INIT,
+	.sb_statfs =	HLIST_HEAD_INIT,
+	.sb_mount =	HLIST_HEAD_INIT,
+	.sb_umount =	HLIST_HEAD_INIT,
+	.sb_pivotroot =	HLIST_HEAD_INIT,
 	.sb_set_mnt_opts =
-		LIST_HEAD_INIT(security_hook_heads.sb_set_mnt_opts),
+		HLIST_HEAD_INIT,
 	.sb_clone_mnt_opts =
-		LIST_HEAD_INIT(security_hook_heads.sb_clone_mnt_opts),
+		HLIST_HEAD_INIT,
 	.sb_parse_opts_str =
-		LIST_HEAD_INIT(security_hook_heads.sb_parse_opts_str),
+		HLIST_HEAD_INIT,
 	.dentry_init_security =
-		LIST_HEAD_INIT(security_hook_heads.dentry_init_security),
+		HLIST_HEAD_INIT,
 #ifdef CONFIG_SECURITY_PATH
-	.path_unlink =	LIST_HEAD_INIT(security_hook_heads.path_unlink),
-	.path_mkdir =	LIST_HEAD_INIT(security_hook_heads.path_mkdir),
-	.path_rmdir =	LIST_HEAD_INIT(security_hook_heads.path_rmdir),
-	.path_mknod =	LIST_HEAD_INIT(security_hook_heads.path_mknod),
+	.path_unlink =	HLIST_HEAD_INIT,
+	.path_mkdir =	HLIST_HEAD_INIT,
+	.path_rmdir =	HLIST_HEAD_INIT,
+	.path_mknod =	HLIST_HEAD_INIT,
 	.path_truncate =
-		LIST_HEAD_INIT(security_hook_heads.path_truncate),
-	.path_symlink =	LIST_HEAD_INIT(security_hook_heads.path_symlink),
-	.path_link =	LIST_HEAD_INIT(security_hook_heads.path_link),
-	.path_rename =	LIST_HEAD_INIT(security_hook_heads.path_rename),
-	.path_chmod =	LIST_HEAD_INIT(security_hook_heads.path_chmod),
-	.path_chown =	LIST_HEAD_INIT(security_hook_heads.path_chown),
-	.path_chroot =	LIST_HEAD_INIT(security_hook_heads.path_chroot),
+		HLIST_HEAD_INIT,
+	.path_symlink =	HLIST_HEAD_INIT,
+	.path_link =	HLIST_HEAD_INIT,
+	.path_rename =	HLIST_HEAD_INIT,
+	.path_chmod =	HLIST_HEAD_INIT,
+	.path_chown =	HLIST_HEAD_INIT,
+	.path_chroot =	HLIST_HEAD_INIT,
 #endif
 	.inode_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.inode_alloc_security),
+		HLIST_HEAD_INIT,
 	.inode_free_security =
-		LIST_HEAD_INIT(security_hook_heads.inode_free_security),
+		HLIST_HEAD_INIT,
 	.inode_init_security =
-		LIST_HEAD_INIT(security_hook_heads.inode_init_security),
-	.inode_create =	LIST_HEAD_INIT(security_hook_heads.inode_create),
-	.inode_post_create = LIST_HEAD_INIT(security_hook_heads.inode_post_create),
-	.inode_link =	LIST_HEAD_INIT(security_hook_heads.inode_link),
-	.inode_unlink =	LIST_HEAD_INIT(security_hook_heads.inode_unlink),
+		HLIST_HEAD_INIT,
+	.inode_create =	HLIST_HEAD_INIT,
+	.inode_post_create = HLIST_HEAD_INIT,
+	.inode_link =	HLIST_HEAD_INIT,
+	.inode_unlink =	HLIST_HEAD_INIT,
 	.inode_symlink =
-		LIST_HEAD_INIT(security_hook_heads.inode_symlink),
-	.inode_mkdir =	LIST_HEAD_INIT(security_hook_heads.inode_mkdir),
-	.inode_rmdir =	LIST_HEAD_INIT(security_hook_heads.inode_rmdir),
-	.inode_mknod =	LIST_HEAD_INIT(security_hook_heads.inode_mknod),
-	.inode_rename =	LIST_HEAD_INIT(security_hook_heads.inode_rename),
+		HLIST_HEAD_INIT,
+	.inode_mkdir =	HLIST_HEAD_INIT,
+	.inode_rmdir =	HLIST_HEAD_INIT,
+	.inode_mknod =	HLIST_HEAD_INIT,
+	.inode_rename =	HLIST_HEAD_INIT,
 	.inode_readlink =
-		LIST_HEAD_INIT(security_hook_heads.inode_readlink),
+		HLIST_HEAD_INIT,
 	.inode_follow_link =
-		LIST_HEAD_INIT(security_hook_heads.inode_follow_link),
+		HLIST_HEAD_INIT,
 	.inode_permission =
-		LIST_HEAD_INIT(security_hook_heads.inode_permission),
+		HLIST_HEAD_INIT,
 	.inode_setattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_setattr),
+		HLIST_HEAD_INIT,
 	.inode_getattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_getattr),
+		HLIST_HEAD_INIT,
 	.inode_setxattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_setxattr),
+		HLIST_HEAD_INIT,
 	.inode_post_setxattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_post_setxattr),
+		HLIST_HEAD_INIT,
 	.inode_getxattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_getxattr),
+		HLIST_HEAD_INIT,
 	.inode_listxattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_listxattr),
+		HLIST_HEAD_INIT,
 	.inode_removexattr =
-		LIST_HEAD_INIT(security_hook_heads.inode_removexattr),
+		HLIST_HEAD_INIT,
 	.inode_need_killpriv =
-		LIST_HEAD_INIT(security_hook_heads.inode_need_killpriv),
+		HLIST_HEAD_INIT,
 	.inode_killpriv =
-		LIST_HEAD_INIT(security_hook_heads.inode_killpriv),
+		HLIST_HEAD_INIT,
 	.inode_getsecurity =
-		LIST_HEAD_INIT(security_hook_heads.inode_getsecurity),
+		HLIST_HEAD_INIT,
 	.inode_setsecurity =
-		LIST_HEAD_INIT(security_hook_heads.inode_setsecurity),
+		HLIST_HEAD_INIT,
 	.inode_listsecurity =
-		LIST_HEAD_INIT(security_hook_heads.inode_listsecurity),
+		HLIST_HEAD_INIT,
 	.inode_getsecid =
-		LIST_HEAD_INIT(security_hook_heads.inode_getsecid),
+		HLIST_HEAD_INIT,
 	.file_permission =
-		LIST_HEAD_INIT(security_hook_heads.file_permission),
+		HLIST_HEAD_INIT,
 	.file_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.file_alloc_security),
+		HLIST_HEAD_INIT,
 	.file_free_security =
-		LIST_HEAD_INIT(security_hook_heads.file_free_security),
-	.file_ioctl =	LIST_HEAD_INIT(security_hook_heads.file_ioctl),
-	.mmap_addr =	LIST_HEAD_INIT(security_hook_heads.mmap_addr),
-	.mmap_file =	LIST_HEAD_INIT(security_hook_heads.mmap_file),
+		HLIST_HEAD_INIT,
+	.file_ioctl =	HLIST_HEAD_INIT,
+	.mmap_addr =	HLIST_HEAD_INIT,
+	.mmap_file =	HLIST_HEAD_INIT,
 	.file_mprotect =
-		LIST_HEAD_INIT(security_hook_heads.file_mprotect),
-	.file_lock =	LIST_HEAD_INIT(security_hook_heads.file_lock),
-	.file_fcntl =	LIST_HEAD_INIT(security_hook_heads.file_fcntl),
+		HLIST_HEAD_INIT,
+	.file_lock =	HLIST_HEAD_INIT,
+	.file_fcntl =	HLIST_HEAD_INIT,
 	.file_set_fowner =
-		LIST_HEAD_INIT(security_hook_heads.file_set_fowner),
+		HLIST_HEAD_INIT,
 	.file_send_sigiotask =
-		LIST_HEAD_INIT(security_hook_heads.file_send_sigiotask),
-	.file_receive =	LIST_HEAD_INIT(security_hook_heads.file_receive),
-	.file_open =	LIST_HEAD_INIT(security_hook_heads.file_open),
-	.file_close = LIST_HEAD_INIT(security_hook_heads.file_close),
-	.task_create =	LIST_HEAD_INIT(security_hook_heads.task_create),
-	.task_free =	LIST_HEAD_INIT(security_hook_heads.task_free),
+		HLIST_HEAD_INIT,
+	.file_receive =	HLIST_HEAD_INIT,
+	.file_open =	HLIST_HEAD_INIT,
+	.file_close = HLIST_HEAD_INIT,
+	.task_create =	HLIST_HEAD_INIT,
+	.task_free =	HLIST_HEAD_INIT,
 	.cred_alloc_blank =
-		LIST_HEAD_INIT(security_hook_heads.cred_alloc_blank),
-	.cred_free =	LIST_HEAD_INIT(security_hook_heads.cred_free),
-	.cred_prepare =	LIST_HEAD_INIT(security_hook_heads.cred_prepare),
+		HLIST_HEAD_INIT,
+	.cred_free =	HLIST_HEAD_INIT,
+	.cred_prepare =	HLIST_HEAD_INIT,
 	.cred_transfer =
-		LIST_HEAD_INIT(security_hook_heads.cred_transfer),
+		HLIST_HEAD_INIT,
 	.kernel_act_as =
-		LIST_HEAD_INIT(security_hook_heads.kernel_act_as),
+		HLIST_HEAD_INIT,
 	.kernel_create_files_as =
-		LIST_HEAD_INIT(security_hook_heads.kernel_create_files_as),
+		HLIST_HEAD_INIT,
 	.kernel_fw_from_file =
-		LIST_HEAD_INIT(security_hook_heads.kernel_fw_from_file),
+		HLIST_HEAD_INIT,
 	.kernel_module_request =
-		LIST_HEAD_INIT(security_hook_heads.kernel_module_request),
+		HLIST_HEAD_INIT,
 	.kernel_module_from_file =
-		LIST_HEAD_INIT(security_hook_heads.kernel_module_from_file),
+		HLIST_HEAD_INIT,
 	.task_fix_setuid =
-		LIST_HEAD_INIT(security_hook_heads.task_fix_setuid),
-	.task_setpgid =	LIST_HEAD_INIT(security_hook_heads.task_setpgid),
-	.task_getpgid =	LIST_HEAD_INIT(security_hook_heads.task_getpgid),
-	.task_getsid =	LIST_HEAD_INIT(security_hook_heads.task_getsid),
+		HLIST_HEAD_INIT,
+	.task_setpgid =	HLIST_HEAD_INIT,
+	.task_getpgid =	HLIST_HEAD_INIT,
+	.task_getsid =	HLIST_HEAD_INIT,
 	.task_getsecid =
-		LIST_HEAD_INIT(security_hook_heads.task_getsecid),
-	.task_setnice =	LIST_HEAD_INIT(security_hook_heads.task_setnice),
+		HLIST_HEAD_INIT,
+	.task_setnice =	HLIST_HEAD_INIT,
 	.task_setioprio =
-		LIST_HEAD_INIT(security_hook_heads.task_setioprio),
+		HLIST_HEAD_INIT,
 	.task_getioprio =
-		LIST_HEAD_INIT(security_hook_heads.task_getioprio),
+		HLIST_HEAD_INIT,
 	.task_setrlimit =
-		LIST_HEAD_INIT(security_hook_heads.task_setrlimit),
+		HLIST_HEAD_INIT,
 	.task_setscheduler =
-		LIST_HEAD_INIT(security_hook_heads.task_setscheduler),
+		HLIST_HEAD_INIT,
 	.task_getscheduler =
-		LIST_HEAD_INIT(security_hook_heads.task_getscheduler),
+		HLIST_HEAD_INIT,
 	.task_movememory =
-		LIST_HEAD_INIT(security_hook_heads.task_movememory),
-	.task_kill =	LIST_HEAD_INIT(security_hook_heads.task_kill),
-	.task_wait =	LIST_HEAD_INIT(security_hook_heads.task_wait),
-	.task_prctl =	LIST_HEAD_INIT(security_hook_heads.task_prctl),
+		HLIST_HEAD_INIT,
+	.task_kill =	HLIST_HEAD_INIT,
+	.task_wait =	HLIST_HEAD_INIT,
+	.task_prctl =	HLIST_HEAD_INIT,
 	.task_to_inode =
-		LIST_HEAD_INIT(security_hook_heads.task_to_inode),
+		HLIST_HEAD_INIT,
 	.ipc_permission =
-		LIST_HEAD_INIT(security_hook_heads.ipc_permission),
-	.ipc_getsecid =	LIST_HEAD_INIT(security_hook_heads.ipc_getsecid),
+		HLIST_HEAD_INIT,
+	.ipc_getsecid =	HLIST_HEAD_INIT,
 	.msg_msg_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.msg_msg_alloc_security),
+		HLIST_HEAD_INIT,
 	.msg_msg_free_security =
-		LIST_HEAD_INIT(security_hook_heads.msg_msg_free_security),
+		HLIST_HEAD_INIT,
 	.msg_queue_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_alloc_security),
+		HLIST_HEAD_INIT,
 	.msg_queue_free_security =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_free_security),
+		HLIST_HEAD_INIT,
 	.msg_queue_associate =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_associate),
+		HLIST_HEAD_INIT,
 	.msg_queue_msgctl =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_msgctl),
+		HLIST_HEAD_INIT,
 	.msg_queue_msgsnd =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_msgsnd),
+		HLIST_HEAD_INIT,
 	.msg_queue_msgrcv =
-		LIST_HEAD_INIT(security_hook_heads.msg_queue_msgrcv),
+		HLIST_HEAD_INIT,
 	.shm_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.shm_alloc_security),
+		HLIST_HEAD_INIT,
 	.shm_free_security =
-		LIST_HEAD_INIT(security_hook_heads.shm_free_security),
+		HLIST_HEAD_INIT,
 	.shm_associate =
-		LIST_HEAD_INIT(security_hook_heads.shm_associate),
-	.shm_shmctl =	LIST_HEAD_INIT(security_hook_heads.shm_shmctl),
-	.shm_shmat =	LIST_HEAD_INIT(security_hook_heads.shm_shmat),
+		HLIST_HEAD_INIT,
+	.shm_shmctl =	HLIST_HEAD_INIT,
+	.shm_shmat =	HLIST_HEAD_INIT,
 	.sem_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.sem_alloc_security),
+		HLIST_HEAD_INIT,
 	.sem_free_security =
-		LIST_HEAD_INIT(security_hook_heads.sem_free_security),
+		HLIST_HEAD_INIT,
 	.sem_associate =
-		LIST_HEAD_INIT(security_hook_heads.sem_associate),
-	.sem_semctl =	LIST_HEAD_INIT(security_hook_heads.sem_semctl),
-	.sem_semop =	LIST_HEAD_INIT(security_hook_heads.sem_semop),
-	.netlink_send =	LIST_HEAD_INIT(security_hook_heads.netlink_send),
+		HLIST_HEAD_INIT,
+	.sem_semctl =	HLIST_HEAD_INIT,
+	.sem_semop =	HLIST_HEAD_INIT,
+	.netlink_send =	HLIST_HEAD_INIT,
 	.d_instantiate =
-		LIST_HEAD_INIT(security_hook_heads.d_instantiate),
-	.getprocattr =	LIST_HEAD_INIT(security_hook_heads.getprocattr),
-	.setprocattr =	LIST_HEAD_INIT(security_hook_heads.setprocattr),
-	.ismaclabel =	LIST_HEAD_INIT(security_hook_heads.ismaclabel),
+		HLIST_HEAD_INIT,
+	.getprocattr =	HLIST_HEAD_INIT,
+	.setprocattr =	HLIST_HEAD_INIT,
+	.ismaclabel =	HLIST_HEAD_INIT,
 	.secid_to_secctx =
-		LIST_HEAD_INIT(security_hook_heads.secid_to_secctx),
+		HLIST_HEAD_INIT,
 	.secctx_to_secid =
-		LIST_HEAD_INIT(security_hook_heads.secctx_to_secid),
+		HLIST_HEAD_INIT,
 	.release_secctx =
-		LIST_HEAD_INIT(security_hook_heads.release_secctx),
+		HLIST_HEAD_INIT,
 	.inode_invalidate_secctx =
-		LIST_HEAD_INIT(security_hook_heads.inode_invalidate_secctx),
+		HLIST_HEAD_INIT,
 	.inode_notifysecctx =
-		LIST_HEAD_INIT(security_hook_heads.inode_notifysecctx),
+		HLIST_HEAD_INIT,
 	.inode_setsecctx =
-		LIST_HEAD_INIT(security_hook_heads.inode_setsecctx),
+		HLIST_HEAD_INIT,
 	.inode_getsecctx =
-		LIST_HEAD_INIT(security_hook_heads.inode_getsecctx),
+		HLIST_HEAD_INIT,
 #ifdef CONFIG_SECURITY_NETWORK
 	.unix_stream_connect =
-		LIST_HEAD_INIT(security_hook_heads.unix_stream_connect),
+		HLIST_HEAD_INIT,
 	.unix_may_send =
-		LIST_HEAD_INIT(security_hook_heads.unix_may_send),
+		HLIST_HEAD_INIT,
 	.socket_create =
-		LIST_HEAD_INIT(security_hook_heads.socket_create),
+		HLIST_HEAD_INIT,
 	.socket_post_create =
-		LIST_HEAD_INIT(security_hook_heads.socket_post_create),
-	.socket_bind =	LIST_HEAD_INIT(security_hook_heads.socket_bind),
+		HLIST_HEAD_INIT,
+	.socket_bind =	HLIST_HEAD_INIT,
 	.socket_connect =
-		LIST_HEAD_INIT(security_hook_heads.socket_connect),
+		HLIST_HEAD_INIT,
 	.socket_listen =
-		LIST_HEAD_INIT(security_hook_heads.socket_listen),
+		HLIST_HEAD_INIT,
 	.socket_accept =
-		LIST_HEAD_INIT(security_hook_heads.socket_accept),
+		HLIST_HEAD_INIT,
 	.socket_sendmsg =
-		LIST_HEAD_INIT(security_hook_heads.socket_sendmsg),
+		HLIST_HEAD_INIT,
 	.socket_recvmsg =
-		LIST_HEAD_INIT(security_hook_heads.socket_recvmsg),
+		HLIST_HEAD_INIT,
 	.socket_getsockname =
-		LIST_HEAD_INIT(security_hook_heads.socket_getsockname),
+		HLIST_HEAD_INIT,
 	.socket_getpeername =
-		LIST_HEAD_INIT(security_hook_heads.socket_getpeername),
+		HLIST_HEAD_INIT,
 	.socket_getsockopt =
-		LIST_HEAD_INIT(security_hook_heads.socket_getsockopt),
+		HLIST_HEAD_INIT,
 	.socket_setsockopt =
-		LIST_HEAD_INIT(security_hook_heads.socket_setsockopt),
+		HLIST_HEAD_INIT,
 	.socket_shutdown =
-		LIST_HEAD_INIT(security_hook_heads.socket_shutdown),
+		HLIST_HEAD_INIT,
 	.socket_sock_rcv_skb =
-		LIST_HEAD_INIT(security_hook_heads.socket_sock_rcv_skb),
+		HLIST_HEAD_INIT,
 	.socket_getpeersec_stream =
-		LIST_HEAD_INIT(security_hook_heads.socket_getpeersec_stream),
+		HLIST_HEAD_INIT,
 	.socket_getpeersec_dgram =
-		LIST_HEAD_INIT(security_hook_heads.socket_getpeersec_dgram),
+		HLIST_HEAD_INIT,
 	.sk_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.sk_alloc_security),
+		HLIST_HEAD_INIT,
 	.sk_free_security =
-		LIST_HEAD_INIT(security_hook_heads.sk_free_security),
+		HLIST_HEAD_INIT,
 	.sk_clone_security =
-		LIST_HEAD_INIT(security_hook_heads.sk_clone_security),
-	.sk_getsecid =	LIST_HEAD_INIT(security_hook_heads.sk_getsecid),
-	.sock_graft =	LIST_HEAD_INIT(security_hook_heads.sock_graft),
+		HLIST_HEAD_INIT,
+	.sk_getsecid =	HLIST_HEAD_INIT,
+	.sock_graft =	HLIST_HEAD_INIT,
 	.inet_conn_request =
-		LIST_HEAD_INIT(security_hook_heads.inet_conn_request),
+		HLIST_HEAD_INIT,
 	.inet_csk_clone =
-		LIST_HEAD_INIT(security_hook_heads.inet_csk_clone),
+		HLIST_HEAD_INIT,
 	.inet_conn_established =
-		LIST_HEAD_INIT(security_hook_heads.inet_conn_established),
+		HLIST_HEAD_INIT,
 	.secmark_relabel_packet =
-		LIST_HEAD_INIT(security_hook_heads.secmark_relabel_packet),
+		HLIST_HEAD_INIT,
 	.secmark_refcount_inc =
-		LIST_HEAD_INIT(security_hook_heads.secmark_refcount_inc),
+		HLIST_HEAD_INIT,
 	.secmark_refcount_dec =
-		LIST_HEAD_INIT(security_hook_heads.secmark_refcount_dec),
+		HLIST_HEAD_INIT,
 	.req_classify_flow =
-		LIST_HEAD_INIT(security_hook_heads.req_classify_flow),
+		HLIST_HEAD_INIT,
 	.tun_dev_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.tun_dev_alloc_security),
+		HLIST_HEAD_INIT,
 	.tun_dev_free_security =
-		LIST_HEAD_INIT(security_hook_heads.tun_dev_free_security),
+		HLIST_HEAD_INIT,
 	.tun_dev_create =
-		LIST_HEAD_INIT(security_hook_heads.tun_dev_create),
+		HLIST_HEAD_INIT,
 	.tun_dev_attach_queue =
-		LIST_HEAD_INIT(security_hook_heads.tun_dev_attach_queue),
+		HLIST_HEAD_INIT,
 	.tun_dev_attach =
-		LIST_HEAD_INIT(security_hook_heads.tun_dev_attach),
-	.tun_dev_open =	LIST_HEAD_INIT(security_hook_heads.tun_dev_open),
-	.skb_owned_by =	LIST_HEAD_INIT(security_hook_heads.skb_owned_by),
+		HLIST_HEAD_INIT,
+	.tun_dev_open =	HLIST_HEAD_INIT,
+	.skb_owned_by =	HLIST_HEAD_INIT,
 #endif	/* CONFIG_SECURITY_NETWORK */
 #ifdef CONFIG_SECURITY_NETWORK_XFRM
 	.xfrm_policy_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_policy_alloc_security),
+		HLIST_HEAD_INIT,
 	.xfrm_policy_clone_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_policy_clone_security),
+		HLIST_HEAD_INIT,
 	.xfrm_policy_free_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_policy_free_security),
+		HLIST_HEAD_INIT,
 	.xfrm_policy_delete_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_policy_delete_security),
+		HLIST_HEAD_INIT,
 	.xfrm_state_alloc =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_state_alloc),
+		HLIST_HEAD_INIT,
 	.xfrm_state_alloc_acquire =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_state_alloc_acquire),
+		HLIST_HEAD_INIT,
 	.xfrm_state_free_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_state_free_security),
+		HLIST_HEAD_INIT,
 	.xfrm_state_delete_security =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_state_delete_security),
+		HLIST_HEAD_INIT,
 	.xfrm_policy_lookup =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_policy_lookup),
+		HLIST_HEAD_INIT,
 	.xfrm_state_pol_flow_match =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_state_pol_flow_match),
+		HLIST_HEAD_INIT,
 	.xfrm_decode_session =
-		LIST_HEAD_INIT(security_hook_heads.xfrm_decode_session),
+		HLIST_HEAD_INIT,
 #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
 #ifdef CONFIG_KEYS
-	.key_alloc =	LIST_HEAD_INIT(security_hook_heads.key_alloc),
-	.key_free =	LIST_HEAD_INIT(security_hook_heads.key_free),
+	.key_alloc =	HLIST_HEAD_INIT,
+	.key_free =	HLIST_HEAD_INIT,
 	.key_permission =
-		LIST_HEAD_INIT(security_hook_heads.key_permission),
+		HLIST_HEAD_INIT,
 	.key_getsecurity =
-		LIST_HEAD_INIT(security_hook_heads.key_getsecurity),
+		HLIST_HEAD_INIT,
 #endif	/* CONFIG_KEYS */
 #ifdef CONFIG_AUDIT
 	.audit_rule_init =
-		LIST_HEAD_INIT(security_hook_heads.audit_rule_init),
+		HLIST_HEAD_INIT,
 	.audit_rule_known =
-		LIST_HEAD_INIT(security_hook_heads.audit_rule_known),
+		HLIST_HEAD_INIT,
 	.audit_rule_match =
-		LIST_HEAD_INIT(security_hook_heads.audit_rule_match),
+		HLIST_HEAD_INIT,
 	.audit_rule_free =
-		LIST_HEAD_INIT(security_hook_heads.audit_rule_free),
+		HLIST_HEAD_INIT,
 #endif /* CONFIG_AUDIT */
 #ifdef CONFIG_BPF_SYSCALL
 	.bpf =
-		LIST_HEAD_INIT(security_hook_heads.bpf),
+		HLIST_HEAD_INIT,
 	.bpf_map =
-		LIST_HEAD_INIT(security_hook_heads.bpf_map),
+		HLIST_HEAD_INIT,
 	.bpf_prog =
-		LIST_HEAD_INIT(security_hook_heads.bpf_prog),
+		HLIST_HEAD_INIT,
 	.bpf_map_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.bpf_map_alloc_security),
+		HLIST_HEAD_INIT,
 	.bpf_map_free_security =
-		LIST_HEAD_INIT(security_hook_heads.bpf_map_free_security),
+		HLIST_HEAD_INIT,
 	.bpf_prog_alloc_security =
-		LIST_HEAD_INIT(security_hook_heads.bpf_prog_alloc_security),
+		HLIST_HEAD_INIT,
 	.bpf_prog_free_security =
-		LIST_HEAD_INIT(security_hook_heads.bpf_prog_free_security),
+		HLIST_HEAD_INIT,
 #endif /* CONFIG_BPF_SYSCALL */
 };
