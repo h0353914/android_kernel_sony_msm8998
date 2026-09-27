@@ -16,10 +16,13 @@ extern void fput_many(struct file *, unsigned int);
 
 struct file_operations;
 struct vfsmount;
+struct inode;
 struct dentry;
 struct path;
 extern struct file *alloc_file(struct path *, fmode_t mode,
 	const struct file_operations *fop);
+extern struct file *alloc_file_pseudo(struct inode *, struct vfsmount *,
+	const char *, int, const struct file_operations *);
 
 static inline void fput_light(struct file *file, int fput_needed)
 {

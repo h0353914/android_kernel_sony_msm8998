@@ -5,6 +5,48 @@
 #include <linux/version.h>
 #include <linux/compiler.h>
 
+/* poll_mask was renamed to __poll_t after Linux 4.4. */
+typedef unsigned int __poll_t;
+
+#ifndef EPOLLIN
+#define EPOLLIN 0x00000001
+#endif
+#ifndef EPOLLHUP
+#define EPOLLHUP 0x00000010
+#endif
+#ifndef EPOLLRDNORM
+#define EPOLLRDNORM 0x00000040
+#endif
+
+/* Linux 4.4 has no seccomp action cache; keep KernelSU's cache a no-op. */
+#ifndef SECCOMP_ARCH_NATIVE_NR
+#define SECCOMP_ARCH_NATIVE_NR 0
+#endif
+#ifndef refcount_t
+#define refcount_t atomic_t
+#endif
+
+#ifndef REMAP_FILE_DEDUP
+#define REMAP_FILE_DEDUP (1U << 0)
+#endif
+
+struct inode;
+struct module;
+struct qstr;
+
+#ifdef CONFIG_MODULES
+extern _Bool try_module_get(struct module *module);
+extern void module_put(struct module *module);
+#endif
+
+/* Anonymous inodes had no dedicated LSM initialization hook in Linux 4.4. */
+static inline int security_inode_init_security_anon(
+	struct inode *inode, const struct qstr *name,
+	const struct inode *context_inode)
+{
+	return 0;
+}
+
 /* KernelSU-Next legacy uses helpers introduced after Linux 4.4. */
 #ifndef ALIGN_DOWN
 #define ALIGN_DOWN(x, a) ((x) & ~((typeof(x))(a) - 1))
@@ -16,6 +58,7 @@
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0)
 #define ksys_close sys_close
+#define ksys_unshare sys_unshare
 #endif
 
 #if defined(CONFIG_ARM64) && \
