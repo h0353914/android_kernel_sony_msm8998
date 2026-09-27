@@ -2852,10 +2852,9 @@ char *copy_mount_string(const void __user *data)
  * Therefore, if this magic number is present, it carries no information
  * and must be discarded.
  */
-long do_mount(const char *dev_name, const char __user *dir_name,
+int path_mount(const char *dev_name, struct path *path,
 		const char *type_page, unsigned long flags, void *data_page)
 {
-	struct path path;
 	int retval = 0;
 	int mnt_flags = 0;
 
@@ -2867,17 +2866,12 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	if (data_page)
 		((char *)data_page)[PAGE_SIZE - 1] = 0;
 
-	/* ... and get the mountpoint */
-	retval = user_path(dir_name, &path);
-	if (retval)
-		return retval;
-
-	retval = security_sb_mount(dev_name, &path,
+	retval = security_sb_mount(dev_name, path,
 				   type_page, flags, data_page);
 	if (!retval && !may_mount())
 		retval = -EPERM;
 	if (retval)
-		goto dput_out;
+		return retval;
 
 	/* Default to relatime unless overriden */
 	if (!(flags & MS_NOATIME))
@@ -2904,7 +2898,7 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	    ((flags & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME |
 		       MS_STRICTATIME)) == 0)) {
 		mnt_flags &= ~MNT_ATIME_MASK;
-		mnt_flags |= path.mnt->mnt_flags & MNT_ATIME_MASK;
+		mnt_flags |= path->mnt->mnt_flags & MNT_ATIME_MASK;
 	}
 
 	flags &= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE | MS_BORN |
@@ -2912,18 +2906,30 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 		   MS_STRICTATIME | MS_SUBMOUNT);
 
 	if (flags & MS_REMOUNT)
-		retval = do_remount(&path, flags & ~MS_REMOUNT, mnt_flags,
+		retval = do_remount(path, flags & ~MS_REMOUNT, mnt_flags,
 				    data_page);
 	else if (flags & MS_BIND)
-		retval = do_loopback(&path, dev_name, flags & MS_REC);
+		retval = do_loopback(path, dev_name, flags & MS_REC);
 	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
-		retval = do_change_type(&path, flags);
+		retval = do_change_type(path, flags);
 	else if (flags & MS_MOVE)
-		retval = do_move_mount(&path, dev_name);
+		retval = do_move_mount(path, dev_name);
 	else
-		retval = do_new_mount(&path, type_page, flags, mnt_flags,
+		retval = do_new_mount(path, type_page, flags, mnt_flags,
 				      dev_name, data_page);
-dput_out:
+	return retval;
+}
+
+long do_mount(const char *dev_name, const char __user *dir_name,
+		const char *type_page, unsigned long flags, void *data_page)
+{
+	struct path path;
+	int retval;
+
+	retval = user_path(dir_name, &path);
+	if (retval)
+		return retval;
+	retval = path_mount(dev_name, &path, type_page, flags, data_page);
 	path_put(&path);
 	return retval;
 }
