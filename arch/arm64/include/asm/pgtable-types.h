@@ -86,6 +86,17 @@ typedef pteval_t pgprot_t;
 
 #endif /* STRICT_MM_TYPECHECKS */
 
+/* Linux 4.11 added a folded p4d level between pgd and pud. */
+typedef pgd_t p4d_t;
+#define p4d_val(x) pgd_val(x)
+#define p4d_offset(pgd, address) (pgd)
+#define p4d_none(p4d) pgd_none(p4d)
+#define p4d_bad(p4d) pgd_bad(p4d)
+#define p4d_present(p4d) pgd_present(p4d)
+#define p4d_clear(p4dp) pgd_clear(p4dp)
+#define p4d_page_paddr(p4d) pgd_page_paddr(p4d)
+#define p4d_page(p4d) pgd_page(p4d)
+
 #if CONFIG_PGTABLE_LEVELS == 2
 #include <asm-generic/pgtable-nopmd.h>
 #elif CONFIG_PGTABLE_LEVELS == 3
