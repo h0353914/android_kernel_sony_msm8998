@@ -19,9 +19,9 @@
 #include "av_permissions.h"
 #include "security.h"
 
-#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
-extern int selinux_enforcing;
-#else
+/* selinux_enforcing (or its selinux_state.enforcing alias) is declared
+ * by security.h. */
+#ifndef CONFIG_SECURITY_SELINUX_DEVELOP
 #define selinux_enforcing 1
 #endif
 

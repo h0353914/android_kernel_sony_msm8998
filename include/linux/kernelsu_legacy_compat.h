@@ -4,6 +4,7 @@
 
 #include <linux/version.h>
 #include <linux/compiler.h>
+#include <linux/refcount.h>
 
 /* poll_mask was renamed to __poll_t after Linux 4.4. */
 typedef unsigned int __poll_t;
@@ -22,12 +23,29 @@ typedef unsigned int __poll_t;
 #ifndef SECCOMP_ARCH_NATIVE_NR
 #define SECCOMP_ARCH_NATIVE_NR 0
 #endif
-#ifndef refcount_t
-#define refcount_t atomic_t
-#endif
-
 #ifndef REMAP_FILE_DEDUP
 #define REMAP_FILE_DEDUP (1U << 0)
+#endif
+
+/*
+ * full_name_hash() gained a salt argument in Linux 4.8. Dispatch on argument
+ * count so both the old 2-arg declaration/callers and KernelSU's new 3-arg
+ * call sites keep working (the salt is simply dropped).
+ */
+#define __ksu_full_name_hash_pick(_1, _2, _3, NAME, ...) NAME
+#define __ksu_full_name_hash_2(name, len) full_name_hash(name, len)
+#define __ksu_full_name_hash_3(salt, name, len) full_name_hash(name, len)
+#define full_name_hash(...) \
+	__ksu_full_name_hash_pick(__VA_ARGS__, __ksu_full_name_hash_3, \
+				   __ksu_full_name_hash_2)(__VA_ARGS__)
+
+/* task_work_add() took a bool before its notify_mode enum in Linux 5.8. */
+#ifndef TWA_RESUME
+#define TWA_RESUME true
+#endif
+
+#ifndef fallthrough
+#define fallthrough do {} while (0)
 #endif
 
 struct inode;
@@ -74,6 +92,25 @@ typedef long (*syscall_fn_t)(const struct pt_regs *regs);
 
 #ifndef copy_from_user_nofault
 #define copy_from_user_nofault(dst, src, size) copy_from_user((dst), (src), (size))
+#endif
+
+#ifndef copy_to_user_nofault
+#define copy_to_user_nofault(dst, src, size) copy_to_user((dst), (src), (size))
+#endif
+
+#ifndef kvmalloc
+#include <linux/slab.h>
+#include <linux/gfp.h>
+#include <linux/vmalloc.h>
+#include <asm/pgtable.h>
+static inline void *kvmalloc(size_t size, gfp_t flags)
+{
+	void *p = kmalloc(size, flags | __GFP_NOWARN | __GFP_NORETRY);
+
+	if (!p)
+		p = __vmalloc(size, flags, PAGE_KERNEL);
+	return p;
+}
 #endif
 
 #if defined(CONFIG_ARM64) && !defined(untagged_addr)

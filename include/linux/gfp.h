@@ -238,6 +238,8 @@ struct vm_area_struct;
  */
 #define GFP_ATOMIC	(__GFP_HIGH|__GFP_ATOMIC|__GFP_KSWAPD_RECLAIM)
 #define GFP_KERNEL	(__GFP_RECLAIM | __GFP_IO | __GFP_FS)
+/* No memcg kmem accounting on this kernel; plain GFP_KERNEL is equivalent. */
+#define GFP_KERNEL_ACCOUNT GFP_KERNEL
 #define GFP_NOWAIT	(__GFP_KSWAPD_RECLAIM)
 #define GFP_NOIO	(__GFP_RECLAIM)
 #define GFP_NOFS	(__GFP_RECLAIM | __GFP_IO)

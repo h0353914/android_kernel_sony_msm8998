@@ -99,7 +99,7 @@
 static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
 
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
-int selinux_enforcing;
+struct selinux_state selinux_state;
 
 static int __init enforcing_setup(char *str)
 {

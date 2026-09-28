@@ -26,6 +26,8 @@ struct seccomp_filter;
 struct seccomp {
 	int mode;
 	struct seccomp_filter *filter;
+	/* Added in later kernels for filter refcounting; unused on this one. */
+	atomic_t filter_count;
 };
 
 #ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER

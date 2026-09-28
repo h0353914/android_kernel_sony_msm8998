@@ -15,6 +15,18 @@ enum pid_type
 };
 
 /*
+ * Newer kernels expose a public PIDTYPE_TGID usable with pid_task()/
+ * f_setown() directly. __PIDTYPE_TGID here is only handled specially
+ * inside __task_pid_nr_ns() and would be an out-of-bounds index into
+ * struct pid's tasks[PIDTYPE_MAX] array if used generically, so alias
+ * the newer name to PIDTYPE_PID instead -- this kernel's own dnotify.c
+ * historically used PIDTYPE_PID at the same call site.
+ */
+#ifndef PIDTYPE_TGID
+#define PIDTYPE_TGID PIDTYPE_PID
+#endif
+
+/*
  * What is struct pid?
  *
  * A struct pid is the kernel's internal notion of a process identifier.
@@ -70,6 +82,12 @@ struct pid
 };
 
 extern struct pid init_struct_pid;
+
+/* Added in later kernels alongside the public PIDTYPE_TGID. */
+static inline bool pid_has_task(struct pid *pid, enum pid_type type)
+{
+	return !hlist_empty(&pid->tasks[type]);
+}
 
 struct pid_link
 {

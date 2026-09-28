@@ -68,6 +68,25 @@ struct netlbl_lsm_secattr;
 
 extern int selinux_enabled;
 
+/*
+ * Newer kernels wrap the enforcing/disabled globals in a struct
+ * selinux_state singleton; KernelSU-Next unconditionally uses that name.
+ * This kernel predates it. security/selinux/hooks.c defines the real
+ * "struct selinux_state selinux_state" instance (under
+ * CONFIG_SECURITY_SELINUX_DEVELOP, same as selinux_enforcing always was);
+ * every other reader of selinux_enforcing (avc.h and its users) is
+ * redirected onto its .enforcing field via macro so there is only ever
+ * one copy of the state.
+ */
+#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+struct selinux_state {
+	int enforcing;
+	int disabled;
+};
+extern struct selinux_state selinux_state;
+#define selinux_enforcing selinux_state.enforcing
+#endif
+
 /* Policy capabilities */
 enum {
 	POLICYDB_CAPABILITY_NETPEER,

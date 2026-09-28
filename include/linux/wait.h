@@ -1194,4 +1194,14 @@ int wait_on_atomic_t(atomic_t *val, int (*action)(atomic_t *), unsigned mode)
 	return out_of_line_wait_on_atomic_t(val, action, mode);
 }
 
+/*
+ * wake_up_var()/wait_var_event() (a generic hashed waitqueue keyed on an
+ * arbitrary variable's address) were added in later kernels. The only
+ * caller here (fsnotify superblock teardown) polls instead of sleeping,
+ * so the wake side is a no-op.
+ */
+static inline void wake_up_var(void *var)
+{
+}
+
 #endif /* _LINUX_WAIT_H */

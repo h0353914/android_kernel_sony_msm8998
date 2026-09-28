@@ -22,6 +22,27 @@ struct uid_gid_map {	/* 64 bytes -- 1 cache line */
 
 #define USERNS_INIT_FLAGS USERNS_SETGROUPS_ALLOWED
 
+/*
+ * Minimal backport of the generic per-(namespace,uid) resource counters
+ * added in later kernels (kernel/ucount.c). Only the inotify/fanotify
+ * counters that KernelSU's fsnotify backport actually touches are wired
+ * up; accounting is per-uid only (this kernel has no nested user
+ * namespaces to speak of on a phone), backed by kernel/ucount_compat.c.
+ */
+enum ucount_type {
+	UCOUNT_INOTIFY_INSTANCES,
+	UCOUNT_INOTIFY_WATCHES,
+	UCOUNT_FANOTIFY_GROUPS,
+	UCOUNT_FANOTIFY_MARKS,
+	UCOUNT_COUNTS,
+};
+
+struct ucounts {
+	struct user_namespace *ns;
+	kuid_t uid;
+	atomic_long_t count[UCOUNT_COUNTS];
+};
+
 struct user_namespace {
 	struct uid_gid_map	uid_map;
 	struct uid_gid_map	gid_map;
@@ -33,6 +54,7 @@ struct user_namespace {
 	kgid_t			group;
 	struct ns_common	ns;
 	unsigned long		flags;
+	long			ucount_max[UCOUNT_COUNTS];
 
 	/* Register of per-UID persistent keyrings for this namespace */
 #ifdef CONFIG_PERSISTENT_KEYRINGS
@@ -42,6 +64,10 @@ struct user_namespace {
 };
 
 extern struct user_namespace init_user_ns;
+
+struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+			   enum ucount_type type);
+void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
 
 #ifdef CONFIG_USER_NS
 

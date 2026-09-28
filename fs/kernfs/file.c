@@ -908,16 +908,17 @@ repeat:
 
 			p_inode = ilookup(info->sb, parent->ino);
 			if (p_inode) {
-				fsnotify(p_inode, FS_MODIFY | FS_EVENT_ON_CHILD,
-					 inode, FSNOTIFY_EVENT_INODE, kn->name, 0);
+				fsnotify(FS_MODIFY | FS_EVENT_ON_CHILD, inode,
+					 FSNOTIFY_EVENT_INODE, p_inode,
+					 kn->name, inode, 0);
 				iput(p_inode);
 			}
 
 			kernfs_put(parent);
 		}
 
-		fsnotify(inode, FS_MODIFY, inode, FSNOTIFY_EVENT_INODE,
-			 kn->name, 0);
+		fsnotify(FS_MODIFY, inode, FSNOTIFY_EVENT_INODE, NULL,
+			 kn->name, inode, 0);
 		iput(inode);
 	}
 

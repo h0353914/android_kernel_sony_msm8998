@@ -55,6 +55,7 @@ struct workqueue_struct;
 struct iov_iter;
 struct fscrypt_info;
 struct fscrypt_operations;
+struct fsnotify_mark_connector;
 
 extern void __init inode_init(void);
 extern void __init inode_init_early(void);
@@ -711,7 +712,7 @@ struct inode {
 
 #ifdef CONFIG_FSNOTIFY
 	__u32			i_fsnotify_mask; /* all events this inode cares about */
-	struct hlist_head	i_fsnotify_marks;
+	struct fsnotify_mark_connector __rcu	*i_fsnotify_marks;
 #endif
 
 #if IS_ENABLED(CONFIG_FS_ENCRYPTION)
@@ -1402,6 +1403,11 @@ struct super_block {
 	unsigned int		s_max_links;
 	fmode_t			s_mode;
 
+#ifdef CONFIG_FSNOTIFY
+	__u32			s_fsnotify_mask;
+	struct fsnotify_mark_connector __rcu	*s_fsnotify_marks;
+#endif
+
 	/* Granularity of c/m/atime in ns.
 	   Cannot be worse than a second */
 	u32		   s_time_gran;
@@ -1434,6 +1440,12 @@ struct super_block {
 
 	/* Number of inodes with nlink == 0 but still referenced */
 	atomic_long_t s_remove_count;
+
+	/*
+	 * Number of inode/mount/sb objects that are being watched, note that
+	 * inodes objects are currently double-accounted.
+	 */
+	atomic_long_t s_fsnotify_connectors;
 
 	/* Being remounted read-only */
 	int s_readonly_remount;

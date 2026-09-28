@@ -1533,6 +1533,17 @@ static inline int security_path_chroot(struct path *path)
 }
 #endif	/* CONFIG_SECURITY_PATH */
 
+/*
+ * security_path_notify() is a newer LSM hook gating fsnotify/fanotify mark
+ * registration; this kernel predates it and never gated this operation, so
+ * always allow, matching prior behavior.
+ */
+static inline int security_path_notify(const struct path *path, u64 mask,
+					unsigned int obj_type)
+{
+	return 0;
+}
+
 #ifdef CONFIG_KEYS
 #ifdef CONFIG_SECURITY
 

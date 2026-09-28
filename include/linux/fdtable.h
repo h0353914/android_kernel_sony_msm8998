@@ -102,6 +102,9 @@ static inline struct file *fcheck_files(struct files_struct *files, unsigned int
  */
 #define fcheck(fd)	fcheck_files(current->files, fd)
 
+/* Renamed in later kernels; same rcu_read_lock()-held fd lookup. */
+#define lookup_fd_rcu(fd)	fcheck(fd)
+
 struct task_struct;
 
 struct files_struct *get_files_struct(struct task_struct *);

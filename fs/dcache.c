@@ -1787,7 +1787,7 @@ static void __d_instantiate(struct dentry *dentry, struct inode *inode)
 	__d_set_inode_and_type(dentry, inode, add_flags);
 	raw_write_seqcount_end(&dentry->d_seq);
 	spin_unlock(&dentry->d_lock);
-	fsnotify_d_instantiate(dentry, inode);
+	fsnotify_update_flags(dentry);
 }
 
 /**
@@ -2432,7 +2432,9 @@ again:
 		}
 		dentry->d_flags &= ~DCACHE_CANT_MOUNT;
 		dentry_unlink_inode(dentry);
-		fsnotify_nameremove(dentry, isdir);
+		fsnotify_name(d_inode(dentry->d_parent),
+			     FS_DELETE | (isdir ? FS_ISDIR : 0), inode,
+			     &dentry->d_name, 0);
 		return;
 	}
 
@@ -2441,7 +2443,9 @@ again:
 
 	spin_unlock(&dentry->d_lock);
 
-	fsnotify_nameremove(dentry, isdir);
+	fsnotify_name(d_inode(dentry->d_parent),
+		     FS_DELETE | (isdir ? FS_ISDIR : 0), inode,
+		     &dentry->d_name, 0);
 }
 EXPORT_SYMBOL(d_delete);
 
@@ -2678,8 +2682,8 @@ static void __d_move(struct dentry *dentry, struct dentry *target,
 		list_move(&target->d_child, &target->d_parent->d_subdirs);
 		list_move(&dentry->d_child, &dentry->d_parent->d_subdirs);
 		if (exchange)
-			fsnotify_d_move(target);
-		fsnotify_d_move(dentry);
+			fsnotify_update_flags(target);
+		fsnotify_update_flags(dentry);
 	}
 
 	write_seqcount_end(&target->d_seq);

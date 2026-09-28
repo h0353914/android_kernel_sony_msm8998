@@ -32,9 +32,7 @@ struct inode;
 struct group_info {
 	atomic_t	usage;
 	int		ngroups;
-	int		nblocks;
-	kgid_t		small_block[NGROUPS_SMALL];
-	kgid_t		*blocks[0];
+	kgid_t		gid[0];
 };
 
 /**
@@ -90,8 +88,7 @@ extern bool may_setgroups(void);
 extern void groups_sort(struct group_info *);
 
 /* access the groups "array" with this macro */
-#define GROUP_AT(gi, i) \
-	((gi)->blocks[(i) / NGROUPS_PER_BLOCK][(i) % NGROUPS_PER_BLOCK])
+#define GROUP_AT(gi, i) ((gi)->gid[(i)])
 
 /*
  * The security context of a task
