@@ -1,0 +1,61 @@
+/* arch/arm64/boot/dts/qcom/msm8998-yoshino-poplar_unified.dtsi
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/*
+ * One device tree for every Poplar variant. Both NFC controllers are
+ * described here; the drivers are built as modules and only the one that
+ * matches the hardware is loaded, so they never compete for GPIO 92/93.
+ */
+
+#include "msm8998-yoshino-poplar_dcm.dtsi"
+
+&soc {
+	/* I2C : BLSP7 */
+	i2c@c1b5000 { /* BLSP2 QUP1 */
+		nfc@28 {
+			compatible = "nxp,pn553";
+			reg = <0x28>;
+			interrupt-parent = <&tlmm>;
+			interrupts = <92 0x1>;
+			nxp,irq_gpio = <&tlmm 92 0x00>;
+			nxp,dwld_en = <&tlmm 93 0x00>;
+			nxp,ven = <&tlmm 12 0x01>;
+			qcom,clk-src = "BBCLK2";
+			qcom,clk-gpio = <&pm8998_gpios 21 0x00>;
+			clocks = <&clock_gcc clk_ln_bb_clk3_pin>;
+			clock-names = "nfc_clk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&msm_gpio_92_nxp>;
+		};
+	};
+
+	nfc,pm-ops {
+		compatible = "sony,pn553-pm-ops";
+	};
+};
+
+&tlmm {
+	/* GPIO_92 : NFC_IRQ (NXP PN553) */
+	msm_gpio_92_nxp: msm_gpio_92_nxp {
+		mux {
+			pins = "gpio92";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio92";
+			drive-strength = <2>;
+			bias-pull-down;
+			input-enable;
+		};
+	};
+};
